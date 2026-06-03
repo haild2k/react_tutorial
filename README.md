@@ -1,6 +1,6 @@
 # react_tutorial
 -Thẻ html được hỗ trợ ở mọi file mà không cần khai báo. ếu tên thẻ bắt đầu bằng chữ hoa, React hiểu đó là component -> cần khai báo
-- Cập nhật DOM khi ko cần thiết sẽ ảnh hưởng tới performance 
+-Cập nhật DOM khi ko cần thiết sẽ ảnh hưởng tới performance 
 ### Crete project use vite
 
 npm create vite@latest my-react-app -- --template react
@@ -23,7 +23,7 @@ function  Post() {
 
 export default Post;
 
-* Props
+### Props
 props (viết tắt của properties) là cách truyền dữ liệu từ component cha xuống component con.
 
 Component con
@@ -35,10 +35,10 @@ function App() {
   return <Welcome name="Hải" />;
 }
 
-*CSS
+### CSS
 -Tham khảo cấu trúc folder css tại 05-styling-css-modules   ,   06-exercise-solution-postlist-cmp
 
-*State 
+### State 
 -Trong React, Hook là các hàm đặc biệt cho phép bạn sử dụng các tính năng của React (state, lifecycle, context, ref, ...) bên trong Function Component mà không cần dùng Class Component.
 | Hook              | Mục đích chính                                 | Khi nào dùng                            | Ví dụ ngắn                                  |
 | ----------------- | ---------------------------------------------- | --------------------------------------- | ------------------------------------------- |
