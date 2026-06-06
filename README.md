@@ -9,7 +9,7 @@
 
 ###
 - useState -> Lưu dữ liệu và render lại khi dữ liệu đổi
-- useEffect -> Chạy tác vụ sau khi render
+- useEffect -> Chạy tác vụ sau khi render => hạy khi component chứa nó render lại và dependency thay đổi.
 - useRef -> Lưu dữ liệu mà không render lại
 
 ### Crete project use vite
@@ -71,11 +71,40 @@ function App() {
 | `useContext` | ✅ Có (khi context đổi) | ✅ Có         | ❌ Không       |
 | `useReducer` | ✅ Có                   | ✅ Có         | ❌ Không       |
 
+
+####
+Ý nghĩa của []
+useEffect(() => {
+  fetchPosts();
+}, []);
+
+Mảng thứ 2 gọi là dependency array.
+
+[]
+
+***
+Không truyền dependency
+useEffect(() => {
+  ...
+});
+
+Sẽ chạy sau mọi lần render.
+
+Render lần 1 -> chạy
+Render lần 2 -> chạy
+Render lần 3 -> chạy
+
 ### enteredBody
 Khi nhiều component cần dùng chung một dữ liệu, hãy đưa state lên component cha gần nhất, rồi truyền xuống các component con bằng props.
 
+Vd: chuyển tới route cha 
 
+function closeHandler() {
+  navigate('..');
+}
 
+#### useNavigate
+- là một Hook của React Router dùng để điều hướng (chuyển trang) bằng code, thay vì người dùng phải click vào <Link> 
 
 
 ### Children
@@ -132,3 +161,340 @@ return (
   </>
 );
 
+### fetch data
+
+  useEffect(() => {
+    async function fetchPosts() {
+      setIsFetching(true);
+      const response = await fetch('http://localhost:8080/posts');
+      const resData = await response.json();
+      setPosts(resData.posts);
+      setIsFetching(false);
+    }
+
+    fetchPosts();
+  }, []);
+
+
+### add route
+
+1. Tạo danh sách route
+const router = createBrowserRouter([
+  { path: '/', element: <App /> },
+  { path: '/create-post', element: <NewPost /> }
+]);
+
+2. Khởi tạo RouterProvider
+<RouterProvider router={router} />
+
+RouterProvider sẽ:
+
+Đọc URL hiện tại trên trình duyệt.
+So sánh URL với danh sách route.
+Render component tương ứng.
+
+
+
+####  Example:
+
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+
+import App from './App'
+import NewPost from './components/NewPost';
+import './index.css'
+
+const router = createBrowserRouter([
+  { path: '/', element: <App /> },
+  { path: '/create-post', element: <NewPost /> }
+]);
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>
+)
+
+### Format cấu trúc route
+
+* File main.jsx
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+
+import Posts from './routes/Posts';
+import NewPost from './routes/NewPost';
+import RootLayout from './routes/RootLayout';
+import './index.css';
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    children: [
+      {
+        path: '/',
+        element: <Posts />,
+        children: [{ path: '/create-post', element: <NewPost /> }],
+      },
+    ],
+  },
+]);
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>
+);
+
+* File Post.jsx
+
+import { Outlet } from 'react-router-dom';
+
+import PostsList from '../components/PostsList';
+
+function Posts() {
+  return (
+    <>
+      <Outlet />
+      <main>
+        <PostsList />
+      </main>
+    </>
+  );
+}
+
+export default Posts;
+
+
+
+=>  Outlet giống {children} của React, nhưng thay vì component cha truyền vào, React Router tự động truyền component của route con vào đó.
+
+### Link Navigation
+- là cách chuyển trang giữa các route mà không reload lại toàn bộ website.
+
+- Cu the:
+React Router cung cấp component:
+
+import { Link } from 'react-router-dom';
+
+<Link to="/about">About</Link>
+
+Khi click:
+
+React Router chặn sự kiện click
+URL đổi thành /about
+React render component mới
+Không reload trang
+
+ * loader()
+- cho phép fetch dữ liệu ngay ở route.
+- Example:
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Posts />,
+    loader: postsLoader
+  }
+]);
+
+async function postsLoader() {
+  const response = await fetch(
+    'http://localhost:8080/posts'
+  );
+
+  return response;
+}
+
+- Luồng hoạt động: 
+User
+  |
+  v
+Route "/"
+  |
+  v
+loader()
+  |
+  +--> fetch()
+  |
+  v
+Nhận dữ liệu
+  |
+  v
+Render component
+
+=> Khác với useEffect:
+
+User
+  |
+  v
+Render component
+  |
+  v
+useEffect()
+  |
+  v
+fetch()
+  |
+  v
+Render lại
+
+- Ex:
+
+import { useLoaderData } from 'react-router-dom';
+
+import Post from './Post';
+import classes from './PostsList.module.css';
+
+function PostsList() {
+  const posts = useLoaderData();
+
+  function addPostHandler(postData) {
+    fetch('http://localhost:8080/posts', {
+      method: 'POST',
+      body: JSON.stringify(postData),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    setPosts((existingPosts) => [postData, ...existingPosts]);
+  }
+
+  return (
+    <>
+      {posts.length > 0 && (
+        <ul className={classes.posts}>
+          {posts.map((post) => (
+            <Post key={post.body} author={post.author} body={post.body} />
+          ))}
+        </ul>
+      )}
+      {posts.length === 0 && (
+        <div style={{ textAlign: 'center', color: 'white' }}>
+          <h2>There are no posts yet.</h2>
+          <p>Start adding some!</p>
+        </div>
+      )}
+    </>
+  );
+}
+
+export default PostsList;
+
+### action()
+- là cơ chế xử lý form submission và các thao tác thay đổi dữ liệu (POST, PUT, PATCH, DELETE) ngay trong hệ thống routing.
+
+* Ex:
+
+- Route:
+
+{
+  path: '/create-post',
+  element: <NewPost />,
+  action: action,
+}
+
+
+
+- Component:
+
+import { Form } from 'react-router-dom';
+
+function NewPost() {
+  return (
+    <Form method="post">
+      <input name="author" />
+      <textarea name="body" />
+      <button>Submit</button>
+    </Form>
+  );
+}
+
+
+- Action:
+
+export async function action({ request }) {
+  const formData = await request.formData();
+
+  const postData = {
+    author: formData.get('author'),
+    body: formData.get('body'),
+  };
+
+  await fetch('http://localhost:8080/posts', {
+    method: 'POST',
+    body: JSON.stringify(postData),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  return redirect('/');
+}
+
+### So sánh loader và action
+
+| Loader                           | Action                                 |
+| -------------------------------- | -------------------------------------- |
+| Đọc dữ liệu                      | Ghi dữ liệu                            |
+| GET                              | POST/PUT/PATCH/DELETE                  |
+| Chạy khi route được tải          | Chạy khi form submit                   |
+| `loader({ request })`            | `action({ request })`                  |
+| `useLoaderData()` để đọc kết quả | Thường dùng `redirect()` sau khi xử lý |
+
+
+### Dynamic Routes
+- Dynamic Route + Loader là cách dùng phổ biến trong React Router mới.
+* Ex:
+
+- Route:
+{
+  path: '/posts/:postId',
+  element: <PostDetails />,
+  loader: postDetailsLoader
+}
+
+- Loader:
+
+export async function postDetailsLoader({ params }) {
+  const postId = params.postId;
+
+  const response = await fetch(
+    `http://localhost:8080/posts/${postId}`
+  );
+
+  return response;
+}
+
+- Component:
+
+import { useLoaderData } from 'react-router-dom';
+
+function PostDetails() {
+  const post = useLoaderData();
+
+  return (
+    <>
+      <h1>{post.author}</h1>
+      <p>{post.body}</p>
+    </>
+  );
+}
+
+=> Luồng chạy:
+
+/posts/5
+    ↓
+Route match
+    ↓
+Loader chạy
+    ↓
+params.postId = 5
+    ↓
+fetch /posts/5
+    ↓
+trả dữ liệu
+    ↓
+PostDetails render
