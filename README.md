@@ -59,3 +59,61 @@ function App() {
 | `useRef`     | ❌ Không                | ✅ Có         | ✅ Có          |
 | `useContext` | ✅ Có (khi context đổi) | ✅ Có         | ❌ Không       |
 | `useReducer` | ✅ Có                   | ✅ Có         | ❌ Không       |
+
+
+
+
+### Children
+là một prop đặc biệt được React tự động truyền vào component để chứa nội dung nằm giữa thẻ mở và thẻ đóng của component đó.
+-> Tham chiếu đến block con nói chung của Component 
+
+Trong file Modal.jsx:
+
+function Modal({ children }) {
+
+dòng này tương đương:
+
+function Modal(props) {
+  const children = props.children;
+}
+
+### Conditional Content
+const [modalIsVisible, setModalIsVisible] = useState(true);
+
+function hideModalHandler() {
+  setModalIsVisible(false);
+}
+
+let modalContent;
+
+if (modalIsVisible) {
+  modalContent = (
+    <Modal onClose={hideModalHandler}>
+      <NewPost
+        onBodyChange={bodyChangeHandler}
+        onAuthorChange={authorChangeHandler}
+      />
+    </Modal>
+      );
+}
+
+
+hoặc viết tắt 
+
+return (
+  <>
+    {modalIsVisible && (
+      <Modal onClose={hideModalHandler}>
+        <NewPost
+          onBodyChange={bodyChangeHandler}
+          onAuthorChange={authorChangeHandler}
+        />
+      </Modal>
+    )}
+    <ul className={classes.posts}>
+      <Post author={enteredAuthor} body={enteredBody} />
+      <Post author="Manuel" body="Check out the full course!" />
+    </ul>
+  </>
+);
+
