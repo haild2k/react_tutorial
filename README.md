@@ -1,6 +1,17 @@
 # react_tutorial
 -Thẻ html được hỗ trợ ở mọi file mà không cần khai báo. ếu tên thẻ bắt đầu bằng chữ hoa, React hiểu đó là component -> cần khai báo
 -Cập nhật DOM khi ko cần thiết sẽ ảnh hưởng tới performance 
+-Trang bị reload => State React bị reset
+-biến một mảng dữ liệu (Array) thành một danh sách Component UI.
+  {posts.map((post) => (
+    <Post key={post.body} author={post.author} body={post.body} />
+  ))}
+
+*
+useState -> Lưu dữ liệu và render lại khi dữ liệu đổi
+useEffect -> Chạy tác vụ sau khi render
+useRef -> Lưu dữ liệu mà không render lại
+
 ### Crete project use vite
 
 npm create vite@latest my-react-app -- --template react
@@ -59,3 +70,7 @@ function App() {
 | `useRef`     | ❌ Không                | ✅ Có         | ✅ Có          |
 | `useContext` | ✅ Có (khi context đổi) | ✅ Có         | ❌ Không       |
 | `useReducer` | ✅ Có                   | ✅ Có         | ❌ Không       |
+
+### enteredBody
+Khi nhiều component cần dùng chung một dữ liệu, hãy đưa state lên component cha gần nhất, rồi truyền xuống các component con bằng props.
+
