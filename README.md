@@ -7,7 +7,7 @@
     <Post key={post.body} author={post.author} body={post.body} />
   ))}
 
-*
+###
 useState -> Lưu dữ liệu và render lại khi dữ liệu đổi
 useEffect -> Chạy tác vụ sau khi render
 useRef -> Lưu dữ liệu mà không render lại
