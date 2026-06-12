@@ -498,3 +498,89 @@ fetch /posts/5
 trả dữ liệu
     ↓
 PostDetails render
+
+
+### memo
+- memo là Higher Order Component (HOC) dùng để tối ưu render.
+- Nó ghi nhớ (memoize) kết quả render của component.
+
+- Không dùng memo
+  
+function Post(props) {
+  console.log("Post render");
+
+  return <p>{props.body}</p>;
+}
+function App() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <>
+      <Post body="Hello" />
+      <button onClick={() => setCount(count + 1)}>
+        Click
+      </button>
+    </>
+  );
+}
+
+- Khi click button:
+
+setCount(...)
+
+→ App render lại
+
+→ Post cũng render lại
+
+mặc dù prop body không đổi.
+
+Console:
+
+Post render
+Post render
+Post render
+...
+
+- Dùng memo
+const Post = memo(function Post(props) {
+  console.log("Post render");
+
+  return <p>{props.body}</p>;
+});
+
+- Khi click button:
+  
+
+setCount(...)
+
+React sẽ kiểm tra:
+
+body cũ === body mới ?
+
+Nếu giống nhau:
+
+Post KHÔNG render lại
+
+Console:
+
+Post render
+
+chỉ xuất hiện 1 lần.
+
+#### memo hoạt động như thế nào?
+
+React so sánh props cũ và props mới bằng shallow comparison.
+
+Ví dụ:
+
+<Post title="React" />
+
+Lần render sau:
+
+<Post title="React" />
+
+React thấy:
+
+"React" === "React"
+
+→ bỏ qua render.
